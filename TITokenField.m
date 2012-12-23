@@ -919,8 +919,8 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 #pragma mark - TIToken -
 //==========================================================
 
-CGFloat const hTextPadding = 14;
-CGFloat const vTextPadding = 5;
+CGFloat const hTextPadding = 8;
+CGFloat const vTextPadding = 3;
 CGFloat const kDisclosureThickness = 2.5;
 UILineBreakMode const kLineBreakMode = UILineBreakModeTailTruncation;
 
@@ -1107,7 +1107,7 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 	if (accessoryType == TITokenAccessoryTypeSubtitle) {
         CGSize subtitleSize = [subtitle sizeWithFont:subtitleFont forWidth:(maxWidth - hTextPadding) lineBreakMode:kLineBreakMode];
         subtitleWidth = subtitleSize.width;
-        CGRect textBounds = CGRectMake(0, -2, subtitleWidth, subtitleSize.height);
+        CGRect textBounds = CGRectMake(4, -3, subtitleWidth, subtitleSize.height);
         
         CGContextSetFillColor(context, CGColorGetComponents(textColor.CGColor));
         [subtitle drawInRect:textBounds withFont:subtitleFont lineBreakMode:kLineBreakMode];
