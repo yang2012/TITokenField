@@ -924,6 +924,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 //==========================================================
 
 CGFloat const subTitleMargin = 4;
+CGFloat const hSubTitlePadding = 1;
 CGFloat const hTextPadding = 3;
 CGFloat const vTextPadding = 0;
 CGFloat const kDisclosureThickness = 2.5;
@@ -1085,7 +1086,8 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 	
 	CGFloat accessoryWidth = 0;
     CGFloat subtitleWidth = 0;
-	
+	CGFloat textPadding = vTextPadding;
+    
 	if (accessoryType == TITokenAccessoryTypeDisclosureIndicator){
 		CGPathRelease(CGPathCreateDisclosureIndicatorPath(CGPointZero, font.pointSize, kDisclosureThickness, &accessoryWidth));
 		accessoryWidth += floorf(hTextPadding / 2);
@@ -1093,11 +1095,12 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
         if (subtitle) {
             CGSize subtitleSize = [subtitle sizeWithFont:subtitleFont forWidth:(maxWidth - hTextPadding) lineBreakMode:kLineBreakMode];
             subtitleWidth = subtitleSize.width + subTitleMargin;
+            textPadding += hSubTitlePadding;
         }
     }
 	
 	CGSize titleSize = [title sizeWithFont:font forWidth:(maxWidth - hTextPadding - accessoryWidth - subtitleWidth) lineBreakMode:kLineBreakMode];
-	CGFloat height = floorf(titleSize.height + vTextPadding);
+	CGFloat height = floorf(titleSize.height + textPadding);
 	
 	[self setFrame:((CGRect){self.frame.origin, {MAX(floorf(titleSize.width + hTextPadding + accessoryWidth + subtitleWidth), height - 3), height}})];
 	[self setNeedsDisplay];
@@ -1107,19 +1110,22 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 - (void)drawRect:(CGRect)rect {
 	
 	CGContextRef context = UIGraphicsGetCurrentContext();
-
+    
     CGFloat accessoryWidth = 0;
     CGFloat subtitleWidth = 0;
-
+    CGFloat subtitlePadding = 0.0;
+    
 	if (accessoryType == TITokenAccessoryTypeSubtitle) {
         if (subtitle) {
             CGSize subtitleSize = [subtitle sizeWithFont:subtitleFont forWidth:(maxWidth - hTextPadding) lineBreakMode:kLineBreakMode];
             subtitleWidth = subtitleSize.width + subTitleMargin;
-            CGRect textBounds = CGRectMake(0, -3, subtitleWidth, subtitleSize.height);
+            CGRect textBounds = CGRectMake(0, 0, subtitleWidth, subtitleSize.height);
             
             CGContextSetFillColor(context, CGColorGetComponents(textColor.CGColor));
             [subtitle drawInRect:textBounds withFont:subtitleFont lineBreakMode:kLineBreakMode];
         }
+        
+        subtitlePadding = hSubTitlePadding;
     } else {
         // Draw the outline.
         CGContextSaveGState(context);
@@ -1219,9 +1225,9 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
     }
 	
 	CGSize titleSize = [title sizeWithFont:font forWidth:(maxWidth - hTextPadding - accessoryWidth) lineBreakMode:kLineBreakMode];
-	CGFloat vPadding = floor((self.bounds.size.height - titleSize.height) / 2);
+	CGFloat vPadding = floor((self.bounds.size.height - titleSize.height) / 2) + subtitlePadding;
 	CGFloat titleWidth = ceilf(self.bounds.size.width - hTextPadding - accessoryWidth);
-	CGRect textBounds = CGRectMake(subtitleWidth, vPadding - 1, titleWidth, floorf(self.bounds.size.height - (vPadding * 2)));
+	CGRect textBounds = CGRectMake(subtitleWidth, vPadding, titleWidth, floorf(self.bounds.size.height - (vPadding * 2)));
 	
 	CGContextSetFillColor(context, CGColorGetComponents(textColor.CGColor));
 	[title drawInRect:textBounds withFont:font lineBreakMode:kLineBreakMode];
